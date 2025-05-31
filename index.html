@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>lkp(yyy.com)</title>
+    <link rel="stylesheet" href="styles.css" type="text/css">
+    <link rel="icon" href="logo.jpg" type="image/x-icon" >
+    <link rel="preload" href="font.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <!-- 内联CSS样式 -->
+
+    <style type="text/css">
+        myHero {
+            display: block;
+            color: #17f9d4;
+            padding: 5px;
+            font-size: 30px;
+        }
+        :root {
+            --bg-image: none; /* 定义CSS变量存储背景图片路径，初始无 */
+            --bg-opacity: 0.5; /* 定义背景透明度变量，初始50%  */
+        }
+    
+        body {
+            position: relative;  /* 为伪元素定位提供基准 */
+            z-index: 1;/* 确保内容层在背景之上 */
+            transition: all 0.5s ease;/* 所有属性变化添加过渡动画  */
+            min-height: 100vh;/* 确保页面高度撑满视口 */
+            margin: 0;
+            padding: 20px;  /* 内容区留白 */
+            font-family: Verdana, Geneva, Tahoma, sans-serif, Arial, Helvetica, sans-serif;
+        }
+    
+        body::after {
+            content: '';/* 伪元素生成背景层 */
+            position: absolute;  /* 绝对定位覆盖整个body */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;      /* 置于内容层下方 */
+            background-image: var(--bg-image);  /* 使用CSS变量动态设置背景图  */
+            background-size: cover; /* 图片自适应容器大小  */
+            background-position: center;
+            background-attachment: fixed; /* 固定背景实现视差效果  */
+            opacity: var(--bg-opacity); /* 动态透明度控制  */
+            transition: inherit; /* 继承body的过渡效果 */
+        }
+    
+        .control-panel {
+            background: rgba(248, 244, 244, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(224, 180, 180, 0.756);
+            margin-bottom: 20px;
+        }
+    
+        button {
+            background-color: rgb(244, 245, 246);
+            color: rgb(116, 74, 222);
+            padding: 8px 15px;
+            margin: 5px;
+            border: 1px solid #f8f2f2;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0.4;
+            min-width: 40px;      /* 增加最小触控面积 */
+            touch-action: manipulation; /* 禁用双击缩放 */
+            -webkit-tap-highlight-color: rgba(0,0,0,0); /* 去除点击高亮 */
+        }
+    
+        .transparency-control {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div class="control-panel">
+        <!-- 背景颜色控制 -->
+        <div class="color-controls">
+            <button onclick="setSolidBg('white')">白色</button>
+            <button onclick="setSolidBg('#1a1a1a')">黑色</button>
+            <button onclick="setSolidBg('lightgrey')">浅灰</button>
+            <button onclick="setSolidBg('#FFE4E1')">粉红</button>
+            <button onclick="setSolidBg('#F0FFF0')">薄荷</button>
+            <button onclick="setSolidBg('#9370DB')">紫色</button>
+            <button onclick="setSolidBg('#BFEFFF')">浅蓝</button>
+        </div>
+    
+        <!-- 图片背景控制 --> 
+        <div class="image-controls" style="margin-top:15px;">
+            <button onclick="setImageBg('./bg1.jpg')"  ontouchstart="setImageBg('./bg1.jpg')">1</button>
+            <button onclick="setImageBg('./bg2.jpg')"  ontouchstart="setImageBg('./bg2.jpg')">2</button>
+            <button onclick="setImageBg('./bg3.jpg')"  ontouchstart="setImageBg('./bg3.jpg')">3</button>
+            <button onclick="setImageBg('./bg4.jpg')"  ontouchstart="setImageBg('./bg4.jpg')">4</button>
+            <button onclick="setImageBg('./bg5.jpg')"  ontouchstart="setImageBg('./bg5.jpg')">5</button>
+            <button onclick="setImageBg('./bg6.jpg')"  ontouchstart="setImageBg('./bg6.jpg')">6</button>
+            <button onclick="setImageBg('./bg7.jpg')"  ontouchstart="setImageBg('./bg7.jpg')">7</button>
+            <button onclick="setImageBg('./bg8.gif')"  ontouchstart="setImageBg('./bg8.gif')">8</button>
+            <button onclick="setImageBg('./bg9.jpg')"  ontouchstart="setImageBg('./bg9.jpg')">9</button>
+        </div>
+    
+        <!-- 透明度控制 -->
+        <div class="transparency-control">
+            <span>透明度：</span>
+            <input type="range" min="0" max="1" step="0.1" value="0.5" id="opacityRange"
+                oninput="updateBgOpacity(this.value)">
+            <span id="opacityValue">50%</span>
+        </div>
+    
+        <!-- 重置按钮 -->
+        <button style="margin-top:15px;" onclick="resetAll()">完全重置</button>
+    
+        <!-- 文字颜色控制 -->
+        <h3 style="margin-top:15px;"></h3>
+        <button onclick="changeTextColor('black')">黑色</button>
+        <button onclick="changeTextColor('white')">白色</button>
+        <button onclick="changeTextColor('#333')">深灰</button>
+        <button onclick="changeTextColor('#c00')">红色</button>
+        <button onclick="resetTextColor()">重置文字</button>
+    </div>
+    
+    <script>
+        // 设置纯色背景（覆盖图片）
+        function setSolidBg(color) {
+                document.body.style.backgroundColor = color;
+                document.documentElement.style.setProperty('--bg-image', 'none');
+                saveSettings();
+            }
+
+            function setImageBg(imgPath, opacity = 0.5) {
+                document.body.style.backgroundColor = '';
+                document.documentElement.style.setProperty('--bg-image', `url(${imgPath})`);
+                document.documentElement.style.setProperty('--bg-opacity', opacity);
+                document.getElementById('opacityRange').value = opacity;
+                document.getElementById('opacityValue').textContent = `${Math.round(opacity * 100)}%`;
+                saveSettings();
+            }
+
+            function updateBgOpacity(value) {
+                document.documentElement.style.setProperty('--bg-opacity', value);
+                document.getElementById('opacityValue').textContent = `${Math.round(value * 100)}%`;
+                saveSettings();
+            }
+
+            function resetAll() {
+                document.body.style.backgroundColor = '';
+                document.body.style.color = '';
+                document.documentElement.style.setProperty('--bg-image', 'none');
+                document.documentElement.style.setProperty('--bg-opacity', 0.5);
+                document.getElementById('opacityRange').value = 0.5;
+                document.getElementById('opacityValue').textContent = '50%';
+                localStorage.clear();
+            }
+
+            // 文字颜色控制
+            function changeTextColor(color) {
+                document.body.style.color = color;
+                saveSettings();
+            }
+
+            function resetTextColor() {
+                document.body.style.color = '';
+                saveSettings();
+            }
+
+            // 保存设置（保持不变）
+            function saveSettings() {
+                const settings = {
+                    bgColor: document.body.style.backgroundColor || '',
+                    textColor: document.body.style.color || '',
+                    bgImage: getComputedStyle(document.documentElement)
+                        .getPropertyValue('--bg-image').trim(),
+                    bgOpacity: getComputedStyle(document.documentElement)
+                        .getPropertyValue('--bg-opacity').trim()
+                };
+                localStorage.setItem('themeSettings', JSON.stringify(settings));
+            }
+
+            // 初始化加载（保持不变）
+            function initSettings() {
+                const saved = JSON.parse(localStorage.getItem('themeSettings'));
+                if (saved) {
+                    document.body.style.backgroundColor = saved.bgColor;
+                    document.body.style.color = saved.textColor;
+                    const bgImage = saved.bgImage === 'none' ? 'none' : saved.bgImage;
+                    document.documentElement.style.setProperty('--bg-image', bgImage);
+                    const opacity = Math.min(Math.max(parseFloat(saved.bgOpacity) || 0.5, 0), 1);
+                    document.documentElement.style.setProperty('--bg-opacity', opacity);
+                    document.getElementById('opacityRange').value = opacity;
+                    document.getElementById('opacityValue').textContent = `${Math.round(opacity * 100)}%`;
+                }
+            }
+
+            // 确保页面加载时初始化
+            window.addEventListener('DOMContentLoaded', initSettings);
+        </script>
+    <!--文本框-->
+    <textarea rows="20" cols="50">内容</textarea><br>
+    <hr style="
+        border: 2px solid #90e8f7;
+        background: none;">
+    <hr style="
+        border: 0;
+        border-top: 2px dashed #fa2d09;">
+    <hr style="
+        border: 0;
+        border-top: 4px double #07f40f;">
+    <h1 style="color: #90e8f7;">鱼落星</h1>
+    <footer>
+        <p>版权所有 © 2025</p>
+        <aside>
+            <p>本站由 鱼鱼鱼 技术支持</p>
+        </aside>
+    </footer>
+</body>
+
+</html>
